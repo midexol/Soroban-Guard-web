@@ -1,14 +1,26 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 interface Props {
   network: string
   onDismiss: () => void
+  checkHealth: () => Promise<boolean>
 }
 
-export default function NetworkHealthBanner({ network, onDismiss }: Props) {
+export default function NetworkHealthBanner({ network, onDismiss, checkHealth }: Props) {
   const [visible, setVisible] = useState(true)
+
+  useEffect(() => {
+    const id = setInterval(async () => {
+      const healthy = await checkHealth()
+      if (healthy) {
+        setVisible(false)
+        onDismiss()
+      }
+    }, 60_000)
+    return () => clearInterval(id)
+  }, [checkHealth, onDismiss])
 
   function handleDismiss() {
     setVisible(false)

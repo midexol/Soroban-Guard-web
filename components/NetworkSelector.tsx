@@ -18,9 +18,10 @@ export function getStoredNetwork(): StellarNetwork {
 
 export default function NetworkSelector({ value, onChange }: Props) {
   function handleChange(e: React.ChangeEvent<HTMLSelectElement>) {
-    const network = NETWORKS[e.target.value]
+    const key = e.target.value
+    const network = NETWORKS[key]
     if (!network) return
-    localStorage.setItem(STORAGE_KEY, e.target.value)
+    localStorage.setItem(STORAGE_KEY, key)
     onChange(network)
   }
 

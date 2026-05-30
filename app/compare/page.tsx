@@ -19,14 +19,14 @@ export default function ComparePage({}: Props) {
     const a = searchParams.get('a')
     const b = searchParams.get('b')
     if (!a || !b) {
-      router.replace('/')
+      setLoading(false)
       return
     }
 
     const recordA = getById(a)
     const recordB = getById(b)
     if (!recordA || !recordB) {
-      router.replace('/')
+      setLoading(false)
       return
     }
 
@@ -45,7 +45,40 @@ export default function ComparePage({}: Props) {
     )
   }
 
-  if (!scanA || !scanB) return null
+  if (!scanA || !scanB) {
+    return (
+      <div className="flex min-h-screen flex-col">
+        <header className="border-b border-[var(--border)] bg-[var(--bg)]/80 backdrop-blur-sm">
+          <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4 sm:px-6">
+            <button
+              onClick={() => router.push('/history')}
+              className="flex items-center gap-2 text-sm text-slate-400 transition hover:text-white"
+            >
+              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+              </svg>
+              Scan History
+            </button>
+          </div>
+        </header>
+        <main className="flex flex-1 flex-col items-center justify-center gap-4 px-4 text-center">
+          <svg className="h-12 w-12 text-slate-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7" />
+          </svg>
+          <p className="text-base font-medium text-slate-300">No scans selected for comparison</p>
+          <p className="max-w-xs text-sm text-slate-500">
+            Go to your scan history, select two scans, and use the Compare button to see a side-by-side diff.
+          </p>
+          <a
+            href="/history"
+            className="mt-2 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-indigo-500"
+          >
+            Browse scan history
+          </a>
+        </main>
+      </div>
+    )
+  }
 
   // Helper to create a unique key for each finding
   function findingKey(f: Finding) {
