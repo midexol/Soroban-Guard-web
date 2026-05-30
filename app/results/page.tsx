@@ -58,8 +58,8 @@ export default function ResultsPage() {
 
   if (findings === null) {
     return (
-      <div className="flex min-h-screen items-center justify-center">
-        <svg className="spinner h-8 w-8 text-indigo-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5}>
+      <div className="flex min-h-screen items-center justify-center" role="status" aria-label="Loading results">
+        <svg className="spinner h-8 w-8 text-indigo-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} aria-hidden="true">
           <path strokeLinecap="round" d="M12 2a10 10 0 0 1 10 10" />
         </svg>
       </div>
@@ -98,7 +98,7 @@ export default function ResultsPage() {
         </div>
       </header>
 
-      <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-10 sm:px-6">
+      <main id="main-content" className="mx-auto w-full max-w-6xl flex-1 px-4 py-10 sm:px-6">
         {/* Summary bar */}
         <div className="mb-8">
           <div className="mb-4 flex items-center justify-between">
@@ -108,7 +108,8 @@ export default function ResultsPage() {
                 onClick={handleCopyJson}
                 disabled={!canCopy}
                 title={canCopy ? 'Copy findings as JSON' : 'Clipboard API unavailable'}
-                className="rounded-lg p-2 text-slate-400 transition hover:bg-[#1a1d27] hover:text-white disabled:cursor-not-allowed disabled:opacity-40"
+                aria-label={copied ? 'Copied to clipboard' : 'Copy findings as JSON'}
+                className="rounded-lg p-2 text-slate-400 transition hover:bg-[#1a1d27] hover:text-white disabled:cursor-not-allowed disabled:opacity-40 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
               >
                 <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />

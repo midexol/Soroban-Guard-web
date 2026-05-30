@@ -33,6 +33,7 @@ function loadHistory(): HistoryEntry[] {
 export default function HistoryPage() {
   const router = useRouter()
   const [entries, setEntries] = useState<HistoryEntry[]>([])
+  const [loading, setLoading] = useState(true)
   const [showConfirm, setShowConfirm] = useState(false)
   // Track schedule state per entry id
   const [schedules, setSchedules] = useState<Record<string, ScheduleInterval | null>>({})
@@ -47,6 +48,7 @@ export default function HistoryPage() {
       initial[e.id] = s?.interval ?? null
     }
     setSchedules(initial)
+    setLoading(false)
   }, [])
 
   function clearHistory() {
@@ -65,8 +67,37 @@ export default function HistoryPage() {
     }
   }
 
+  if (loading) {
+    return (
+      <main id="main-content" className="mx-auto max-w-4xl px-4 py-10 sm:px-6" aria-busy="true" aria-label="Loading scan history">
+        <div className="mb-6 flex items-center justify-between">
+          <div className="h-8 w-36 animate-pulse rounded-lg bg-[#1a1d27]" />
+          <div className="h-9 w-24 animate-pulse rounded-lg bg-[#1a1d27]" />
+        </div>
+        <ul className="space-y-3" aria-label="Loading scan history" aria-busy="true">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <li key={i} className="rounded-xl border border-[#2a2d3a] bg-[#12151f] px-5 py-4">
+              <div className="flex items-center justify-between">
+                <div className="h-4 w-48 animate-pulse rounded bg-[#1a1d27]" />
+                <div className="h-3 w-20 animate-pulse rounded bg-[#1a1d27]" />
+              </div>
+              <div className="mt-2 h-3 w-24 animate-pulse rounded bg-[#1a1d27]" />
+              <div className="mt-3 flex items-center gap-2">
+                <div className="h-3 w-3 animate-pulse rounded bg-[#1a1d27]" />
+                <div className="h-3 w-12 animate-pulse rounded bg-[#1a1d27]" />
+                <div className="h-5 w-14 animate-pulse rounded-md bg-[#1a1d27]" />
+                <div className="h-5 w-14 animate-pulse rounded-md bg-[#1a1d27]" />
+                <div className="h-5 w-14 animate-pulse rounded-md bg-[#1a1d27]" />
+              </div>
+            </li>
+          ))}
+        </ul>
+      </main>
+    )
+  }
+
   return (
-    <div className="mx-auto max-w-4xl px-4 py-10 sm:px-6">
+    <main id="main-content" className="mx-auto max-w-4xl px-4 py-10 sm:px-6">
       <div className="mb-6 flex items-center justify-between">
         <h1 className="text-2xl font-bold text-white">Scan History</h1>
         <div className="flex items-center gap-3">
@@ -158,6 +189,6 @@ export default function HistoryPage() {
           onCancel={() => setShowConfirm(false)}
         />
       )}
-    </div>
+    </main>
   )
 }

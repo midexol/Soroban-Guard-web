@@ -37,8 +37,8 @@ export default function ComparePage({}: Props) {
 
   if (loading) {
     return (
-      <div className="flex min-h-screen items-center justify-center">
-        <svg className="spinner h-8 w-8 text-indigo-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5}>
+      <div className="flex min-h-screen items-center justify-center" role="status" aria-label="Loading comparison">
+        <svg className="spinner h-8 w-8 text-indigo-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} aria-hidden="true">
           <path strokeLinecap="round" d="M12 2a10 10 0 0 1 10 10" />
         </svg>
       </div>
@@ -90,7 +90,7 @@ export default function ComparePage({}: Props) {
         </div>
       </header>
 
-      <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-10 sm:px-6">
+      <main id="main-content" className="mx-auto w-full max-w-6xl flex-1 px-4 py-10 sm:px-6">
         <h1 className="mb-8 text-2xl font-bold text-white">Scan Comparison</h1>
 
         <div className="grid grid-cols-1 gap-8 md:grid-cols-3">

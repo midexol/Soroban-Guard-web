@@ -1,8 +1,9 @@
 'use client'
 
-import { useState } from 'react'
+import { useId, useState } from 'react'
 import type { Finding } from '@/types/findings'
 import { createJiraIssue } from '@/lib/jira'
+import { useFocusTrap } from '@/lib/useFocusTrap'
 
 interface Props {
   findings: Finding[]
@@ -17,6 +18,8 @@ export default function JiraExportModal({ findings, onClose }: Props) {
   const [progress, setProgress] = useState<{ done: number; total: number } | null>(null)
   const [urls, setUrls] = useState<string[] | null>(null)
   const [error, setError] = useState<string | null>(null)
+  const titleId = useId()
+  const dialogRef = useFocusTrap<HTMLDivElement>(onClose)
 
   const ticketFindings = findings.filter(
     finding => finding.severity === 'Critical' || finding.severity === 'High',
@@ -56,12 +59,19 @@ export default function JiraExportModal({ findings, onClose }: Props) {
       onClick={e => {
         if (e.target === e.currentTarget) onClose()
       }}
+      role="presentation"
     >
-      <div className="w-full max-w-md rounded-2xl border border-[#2a2d3a] bg-[#0e1117] p-6 shadow-xl">
+      <div
+        ref={dialogRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby={titleId}
+        className="w-full max-w-md rounded-2xl border border-[#2a2d3a] bg-[#0e1117] p-6 shadow-xl"
+      >
         <div className="mb-5 flex items-center justify-between">
-          <h2 className="text-base font-semibold text-white">Create Jira Tickets</h2>
-          <button onClick={onClose} className="text-slate-500 hover:text-white" aria-label="Close">
-            <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+          <h2 id={titleId} className="text-base font-semibold text-white">Create Jira Tickets</h2>
+          <button onClick={onClose} className="text-slate-500 hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 rounded" aria-label="Close dialog">
+            <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} aria-hidden="true">
               <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
             </svg>
           </button>
@@ -142,7 +152,7 @@ export default function JiraExportModal({ findings, onClose }: Props) {
             <button
               type="submit"
               disabled={busy || ticketFindings.length === 0}
-              className="w-full rounded-xl bg-indigo-600 py-2.5 text-sm font-semibold text-white transition hover:bg-indigo-500 disabled:cursor-not-allowed disabled:opacity-40"
+              className="w-full rounded-xl bg-indigo-600 py-2.5 text-sm font-semibold text-white transition hover:bg-indigo-500 disabled:cursor-not-allowed disabled:opacity-40 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
             >
               {busy ? 'Creating...' : `Create ${ticketFindings.length} ticket${ticketFindings.length !== 1 ? 's' : ''}`}
             </button>

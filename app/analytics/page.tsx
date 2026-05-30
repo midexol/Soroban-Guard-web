@@ -24,8 +24,8 @@ export default function AnalyticsPage() {
 
   if (records === null || analytics === null) {
     return (
-      <div className="flex min-h-screen items-center justify-center">
-        <svg className="spinner h-8 w-8 text-indigo-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5}>
+      <div className="flex min-h-screen items-center justify-center" role="status" aria-label="Loading analytics">
+        <svg className="spinner h-8 w-8 text-indigo-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} aria-hidden="true">
           <path strokeLinecap="round" d="M12 2a10 10 0 0 1 10 10" />
         </svg>
       </div>
@@ -48,25 +48,36 @@ export default function AnalyticsPage() {
         </div>
       </header>
 
-      <main className="mx-auto w-full max-w-5xl flex-1 px-4 py-10 sm:px-6">
+      <main id="main-content" className="mx-auto w-full max-w-5xl flex-1 px-4 py-10 sm:px-6">
         <h1 className="mb-2 text-2xl font-bold text-white">Portfolio Analytics</h1>
         <p className="mb-8 text-sm text-slate-500">Aggregate statistics across all scans in your history.</p>
 
         {isEmpty ? (
           <div className="flex flex-col items-center justify-center rounded-xl border border-[var(--border)] bg-[#12151f] py-20 text-center">
-            <svg className="mb-4 h-10 w-10 text-slate-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+            <svg className="mb-4 h-10 w-10 text-slate-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5} aria-hidden="true">
               <path strokeLinecap="round" strokeLinejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
             </svg>
-            <p className="text-sm font-medium text-slate-400">Not enough data yet</p>
-            <p className="mt-1 text-xs text-slate-600">
-              Run at least {MIN_RECORDS} scans to see analytics.{' '}
-              {records.length > 0 && `(${records.length} of ${MIN_RECORDS} so far)`}
-            </p>
+            {records.length === 0 ? (
+              <>
+                <p className="text-sm font-medium text-slate-400">No scan history yet</p>
+                <p className="mt-1 text-xs text-slate-600">
+                  Run your first scan to start seeing analytics.
+                </p>
+              </>
+            ) : (
+              <>
+                <p className="text-sm font-medium text-slate-400">Not enough data yet</p>
+                <p className="mt-1 text-xs text-slate-600">
+                  Run at least {MIN_RECORDS} scans to see analytics.{' '}
+                  {`(${records.length} of ${MIN_RECORDS} so far)`}
+                </p>
+              </>
+            )}
             <a
               href="/"
-              className="mt-6 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-indigo-500"
+              className="mt-6 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-indigo-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 focus-visible:ring-offset-[#12151f]"
             >
-              Scan a contract
+              {records.length === 0 ? 'Run your first scan' : 'Scan a contract'}
             </a>
           </div>
         ) : (
@@ -130,8 +141,13 @@ export default function AnalyticsPage() {
 function StatCard({ label, value, color }: { label: string; value: number; color: string }) {
   return (
     <div className="rounded-xl border border-[var(--border)] bg-[#12151f] px-5 py-4">
-      <p className="mb-1 text-xs text-slate-500">{label}</p>
-      <p className={`text-3xl font-bold ${color}`}>{value}</p>
+      <p className="mb-1 text-xs text-slate-500" id={`stat-${label.replace(/\s+/g, '-').toLowerCase()}`}>{label}</p>
+      <p
+        className={`text-3xl font-bold ${color}`}
+        aria-labelledby={`stat-${label.replace(/\s+/g, '-').toLowerCase()}`}
+      >
+        {value}
+      </p>
     </div>
   )
 }
