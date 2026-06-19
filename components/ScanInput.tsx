@@ -310,7 +310,7 @@ export default function ScanInput({
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       {/* Network selector */}
-      <div className="flex items-center gap-2">
+      <div data-tour-id="network-selector" className="flex items-center gap-2">
         <label htmlFor="network-selector" className="text-xs text-slate-400">
           {t('scanInput.network')}
         </label>

@@ -9,6 +9,8 @@ import NetworkBadge from '@/components/NetworkBadge'
 import NetworkHealthBanner from '@/components/NetworkHealthBanner'
 import ThemeToggle from '@/components/ThemeToggle'
 import ScanQuotaIndicator from '@/components/ScanQuota'
+import TourTooltip from '@/components/TourTooltip'
+import { useOnboardingTour } from '@/lib/useOnboardingTour'
 import { scanContract, ApiError, TimeoutError } from '@/lib/api'
 import type { ScanQuota } from '@/lib/api'
 import { checkNetworkHealth, fetchContractsByAccount } from '@/lib/stellar'
@@ -18,6 +20,39 @@ import { useWallet } from '@/lib/WalletContext'
 import { FEATURED_CONTRACTS } from '@/lib/featuredContracts'
 import type { ContractScanRecord } from '@/types/stellar'
 import { NETWORKS } from '@/types/stellar'
+
+const TOUR_STEPS = [
+  {
+    id: 'scan-input',
+    title: 'Scan Input',
+    content: 'Paste a contract ID, GitHub URL, or raw Rust code here to start scanning.',
+    position: 'bottom' as const,
+  },
+  {
+    id: 'network-selector',
+    title: 'Network Selector',
+    content: 'Choose Testnet or Mainnet before scanning to target the right network.',
+    position: 'bottom' as const,
+  },
+  {
+    id: 'featured-contracts',
+    title: 'Featured Contracts',
+    content: 'Not sure where to start? Try one of these sample contracts to see Soroban Guard in action.',
+    position: 'top' as const,
+  },
+  {
+    id: 'wallet-connect',
+    title: 'Wallet Connect',
+    content: 'Connect your Freighter wallet to view contracts linked to your account.',
+    position: 'bottom' as const,
+  },
+  {
+    id: 'theme-toggle',
+    title: 'Theme Toggle',
+    content: 'Switch between light and dark mode to suit your preference.',
+    position: 'bottom' as const,
+  },
+]
 
 export default function HomePage() {
   const router = useRouter()
@@ -34,6 +69,8 @@ export default function HomePage() {
   const [contracts, setContracts] = useState<string[]>([])
   const [contractsLoading, setContractsLoading] = useState(false)
   const [contractsError, setContractsError] = useState<string | null>(null)
+
+  const tour = useOnboardingTour(TOUR_STEPS)
 
   // Tick down the rate-limit countdown using quota.resetAt
   useEffect(() => {
@@ -153,9 +190,20 @@ export default function HomePage() {
               <GithubIcon />
               Veritas Vaults Network
             </a>
-            <ThemeToggle />
+            <button
+              onClick={tour.start}
+              className="rounded-lg px-3 py-1.5 text-sm text-slate-400 ring-1 ring-[var(--border)] transition hover:text-white"
+              aria-label="Take the tour"
+            >
+              Take the tour
+            </button>
+            <span data-tour-id="theme-toggle">
+              <ThemeToggle />
+            </span>
             {quota && <ScanQuotaIndicator quota={quota} />}
-            <WalletConnect />
+            <span data-tour-id="wallet-connect">
+              <WalletConnect />
+            </span>
           </div>
         </div>
       </header>
@@ -224,7 +272,7 @@ export default function HomePage() {
              </div>
            )}
            {/* Scan card */}
-          <div className="rounded-2xl border border-[var(--border)] bg-[var(--bg-secondary)] p-6 text-left shadow-2xl">
+          <div data-tour-id="scan-input" className="rounded-2xl border border-[var(--border)] bg-[var(--bg-secondary)] p-6 text-left shadow-2xl">
             <ErrorBoundary>
               <ScanInput onScan={handleScan} loading={loading} countdown={rateLimitCountdown} />
             </ErrorBoundary>
@@ -289,7 +337,7 @@ export default function HomePage() {
          </section>
 
          {/* Featured contracts */}
-         <section className="mt-8">
+         <section data-tour-id="featured-contracts" className="mt-8">
            <div className="mx-auto max-w-5xl px-4 sm:px-6">
              <h2 className="mb-6 text-center text-xl font-semibold text-white">Featured Contracts</h2>
              <p className="mb-8 text-center text-slate-400 max-w-2xl">
@@ -405,6 +453,18 @@ export default function HomePage() {
           · Open source · MIT License
         </p>
       </footer>
+
+      {tour.active && tour.currentStep && (
+        <TourTooltip
+          step={tour.currentStep}
+          stepIndex={tour.step}
+          total={tour.total}
+          targetRect={tour.targetRect}
+          onNext={tour.next}
+          onPrev={tour.prev}
+          onSkip={tour.skip}
+        />
+      )}
     </div>
   )
 }
