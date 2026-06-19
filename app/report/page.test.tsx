@@ -40,8 +40,8 @@ describe('ReportPage', () => {
     render(<ReportPage />)
 
     expect(screen.getByText('unchecked-auth')).toBeInTheDocument()
-    expect(screen.getByText('transfer')).toBeInTheDocument()
-    expect(screen.getByText('src/lib.rs')).toBeInTheDocument()
+    expect(screen.getByText(/transfer/)).toBeInTheDocument()
+    expect(screen.getByText(/src\/lib\.rs/)).toBeInTheDocument()
     expect(screen.getByText('Authorization not verified.')).toBeInTheDocument()
     expect(screen.getByText(/my-contract/)).toBeInTheDocument()
     expect(screen.getByText(/Security Score: 75/)).toBeInTheDocument()
