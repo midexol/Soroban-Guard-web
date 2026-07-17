@@ -79,11 +79,13 @@ describe('postToSlack', () => {
     expect(headerText).not.toContain('a'.repeat(130))
   })
 
-  it('does not throw when fetch fails', async () => {
+  it('does not throw when fetch fails and retries 3 times', async () => {
     vi.mocked(fetch).mockRejectedValue(new Error('network error'))
 
     await expect(
       postToSlack('https://hooks.slack.com/T0/B0/xyz', makeFindings('High'), 'src.rs'),
     ).resolves.toBeUndefined()
+
+    expect(vi.mocked(fetch)).toHaveBeenCalledTimes(3)
   })
 })

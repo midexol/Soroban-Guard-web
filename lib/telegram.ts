@@ -1,4 +1,5 @@
 import type { Finding } from '@/types/findings'
+import { fetchWithRetry, NOTIFICATION_RETRY_POLICY } from './httpClient'
 
 const TELEGRAM_API = 'https://api.telegram.org'
 
@@ -44,10 +45,11 @@ export async function postToTelegram(
 
   const text = lines.join('\n')
 
-  const res = await fetch(`${TELEGRAM_API}/bot${botToken}/sendMessage`, {
+  const res = await fetchWithRetry(`${TELEGRAM_API}/bot${botToken}/sendMessage`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ chat_id: chatId, text, parse_mode: 'Markdown' }),
+    retryPolicy: NOTIFICATION_RETRY_POLICY,
   })
 
   if (!res.ok) {

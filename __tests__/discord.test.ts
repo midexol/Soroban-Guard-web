@@ -72,7 +72,7 @@ describe('postToDiscord', () => {
   })
 
   it('swallows fetch errors silently', async () => {
-    ;(global.fetch as jest.Mock).mockRejectedValueOnce(new Error('Network error'))
+    ;(global.fetch as jest.Mock).mockRejectedValue(new Error('Network error'))
     await expect(
       postToDiscord('https://discord.com/api/webhooks/test', [mockFinding], 'src/lib.rs'),
     ).resolves.toBeUndefined()

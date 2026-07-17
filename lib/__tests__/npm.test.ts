@@ -71,14 +71,16 @@ describe('fetchNpmSource', () => {
     await expect(fetchNpmSource('INVALID!')).rejects.toThrow('Invalid package name')
   })
 
-  it('throws when package is not found (404)', async () => {
+  it('throws when package is not found (404) and does not retry', async () => {
     ;(global.fetch as jest.Mock).mockResolvedValue({ ok: false, status: 404 })
     await expect(fetchNpmSource('no-such-pkg-xyzxyz')).rejects.toThrow('Package not found on npm')
+    expect(global.fetch).toHaveBeenCalledTimes(1)
   })
 
-  it('throws when unpkg returns a non-404 error', async () => {
+  it('throws when unpkg returns a non-404 error and retries 5 times', async () => {
     ;(global.fetch as jest.Mock).mockResolvedValue({ ok: false, status: 500 })
     await expect(fetchNpmSource('lodash')).rejects.toThrow('unpkg returned 500')
+    expect(global.fetch).toHaveBeenCalledTimes(5)
   })
 
   it('returns content on success', async () => {

@@ -1,4 +1,5 @@
 import type { Finding, Severity } from '@/types/findings'
+import { fetchWithRetry, NOTIFICATION_RETRY_POLICY } from './httpClient'
 
 const SEVERITY_ORDER: Record<Severity, number> = {
   Critical: 0,
@@ -71,7 +72,7 @@ export async function postToDiscord(
   }
 
   try {
-    const response = await fetch(webhookUrl, {
+    const response = await fetchWithRetry(webhookUrl, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -85,6 +86,7 @@ export async function postToDiscord(
           },
         ],
       }),
+      retryPolicy: NOTIFICATION_RETRY_POLICY,
     })
     if (!response.ok) throw new Error(`Discord webhook failed with ${response.status}`)
   } catch (error) {

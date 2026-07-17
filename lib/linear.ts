@@ -1,4 +1,5 @@
 import type { Finding, Severity } from '@/types/findings'
+import { fetchWithRetry, NOTIFICATION_RETRY_POLICY } from './httpClient'
 
 interface LinearIssueCreateResponse {
   data?: {
@@ -45,7 +46,7 @@ export async function createLinearIssue(
   teamId: string,
   finding: Finding,
 ): Promise<string> {
-  const response = await fetch('https://api.linear.app/graphql', {
+  const response = await fetchWithRetry('https://api.linear.app/graphql', {
     method: 'POST',
     headers: {
       Authorization: apiKey,
@@ -71,6 +72,7 @@ export async function createLinearIssue(
         },
       },
     }),
+    retryPolicy: NOTIFICATION_RETRY_POLICY,
   })
 
   const data = (await response.json().catch(() => ({}))) as LinearIssueCreateResponse

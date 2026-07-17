@@ -1,3 +1,5 @@
+import { fetchWithRetry, READ_RETRY_POLICY } from './httpClient'
+
 const NPM_PACKAGE_SEGMENT_RE = /^[a-z0-9][a-z0-9._-]*$/
 const NPM_PACKAGE_NAME_RE = /^(?:@([a-z0-9][a-z0-9._-]*)\/)?([a-z0-9][a-z0-9._-]*)$/
 const MAX_NPM_SOURCE_CHARS = 100_000
@@ -49,8 +51,9 @@ export async function fetchNpmSource(packageName: string, version?: string): Pro
   const timeout = setTimeout(() => controller.abort(), 15_000)
 
   try {
-    const res = await fetch(url, {
+    const res = await fetchWithRetry(url, {
       signal: controller.signal,
+      retryPolicy: READ_RETRY_POLICY,
     })
 
     if (!res.ok) {

@@ -1,3 +1,5 @@
+import { fetchWithRetry, READ_RETRY_POLICY } from './httpClient'
+
 const CID_RE = /^(Qm[1-9A-HJ-NP-Za-km-z]{44}|bafy[a-z2-7]{55})$/
 
 /**
@@ -19,8 +21,9 @@ export async function fetchFromIpfs(cid: string): Promise<string> {
   const controller = new AbortController()
   const timeout = setTimeout(() => controller.abort(), 15_000)
   try {
-    const res = await fetch(`https://ipfs.io/ipfs/${encodeURIComponent(cid.trim())}`, {
+    const res = await fetchWithRetry(`https://ipfs.io/ipfs/${encodeURIComponent(cid.trim())}`, {
       signal: controller.signal,
+      retryPolicy: READ_RETRY_POLICY,
     })
     if (!res.ok) throw new Error(`IPFS gateway returned ${res.status}`)
     return await res.text()
