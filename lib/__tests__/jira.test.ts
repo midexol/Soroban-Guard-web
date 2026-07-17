@@ -101,7 +101,7 @@ describe('createJiraIssue', () => {
     expect(fetchUrl).toBe('https://example.atlassian.net/rest/api/3/issue')
   })
 
-  it('throws on non-ok response', async () => {
+  it('does not retry on 403 status code', async () => {
     vi.mocked(fetch).mockResolvedValue({
       ok: false,
       status: 403,
@@ -111,6 +111,22 @@ describe('createJiraIssue', () => {
     await expect(
       createJiraIssue('https://example.atlassian.net', 'user@example.com', 'token', 'PROJ', mockFinding),
     ).rejects.toThrow('Forbidden')
+
+    expect(vi.mocked(fetch)).toHaveBeenCalledOnce()
+  })
+
+  it('retries on 500 status code up to 3 times', async () => {
+    vi.mocked(fetch).mockResolvedValue({
+      ok: false,
+      status: 500,
+      text: async () => 'Internal Server Error',
+    } as Response)
+
+    await expect(
+      createJiraIssue('https://example.atlassian.net', 'user@example.com', 'token', 'PROJ', mockFinding),
+    ).rejects.toThrow('Internal Server Error')
+
+    expect(vi.mocked(fetch)).toHaveBeenCalledTimes(3)
   })
 
   it('includes remediation in the issue body when present', async () => {

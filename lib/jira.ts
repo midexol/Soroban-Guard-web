@@ -1,4 +1,5 @@
 import type { Finding } from '@/types/findings'
+import { fetchWithRetry, NOTIFICATION_RETRY_POLICY } from './httpClient'
 
 interface JiraIssueResponse {
   key?: string
@@ -51,7 +52,7 @@ export async function createJiraIssue(
   finding: Finding,
 ): Promise<string> {
   const root = normalizeBaseUrl(baseUrl)
-  const response = await fetch(`${root}/rest/api/3/issue`, {
+  const response = await fetchWithRetry(`${root}/rest/api/3/issue`, {
     method: 'POST',
     headers: {
       Authorization: `Basic ${btoa(`${email}:${apiToken}`)}`,
@@ -66,6 +67,7 @@ export async function createJiraIssue(
         issuetype: { name: 'Task' },
       },
     }),
+    retryPolicy: NOTIFICATION_RETRY_POLICY,
   })
 
   if (!response.ok) {

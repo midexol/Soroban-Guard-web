@@ -1,4 +1,5 @@
 import type { Finding } from '@/types/findings'
+import { fetchWithRetry, NOTIFICATION_RETRY_POLICY } from './httpClient'
 
 const SEVERITY_COLORS: Record<string, string> = {
   Critical: 'B60205',
@@ -14,10 +15,11 @@ async function ensureLabel(owner: string, repo: string, token: string, severity:
     'Content-Type': 'application/json',
   }
   // Create label — ignore 422 (already exists)
-  await fetch(`https://api.github.com/repos/${owner}/${repo}/labels`, {
+  await fetchWithRetry(`https://api.github.com/repos/${owner}/${repo}/labels`, {
     method: 'POST',
     headers,
     body: JSON.stringify({ name: severity, color: SEVERITY_COLORS[severity] ?? 'CCCCCC' }),
+    retryPolicy: NOTIFICATION_RETRY_POLICY,
   })
 }
 
@@ -59,10 +61,11 @@ export async function createIssuesForFindings(
       ...(f.remediation ? ['', '**Remediation:**', f.remediation] : []),
     ].join('\n')
 
-    const res = await fetch(`https://api.github.com/repos/${owner}/${repo}/issues`, {
+    const res = await fetchWithRetry(`https://api.github.com/repos/${owner}/${repo}/issues`, {
       method: 'POST',
       headers,
       body: JSON.stringify({ title: `[${f.severity}] ${f.check_name}`, body, labels: [f.severity] }),
+      retryPolicy: NOTIFICATION_RETRY_POLICY,
     })
     if (!res.ok) {
       const err = await res.json().catch(() => ({}))

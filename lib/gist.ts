@@ -1,3 +1,5 @@
+import { fetchWithRetry, READ_RETRY_POLICY } from './httpClient'
+
 const GIST_URL_RE = /^https:\/\/gist\.github\.com\/([^/]+)\/([a-f0-9]+)\/?$/i
 
 export interface GistFile {
@@ -32,8 +34,9 @@ export async function fetchGistFiles(url: string): Promise<GistData> {
   const gistId = match[2]
   const apiUrl = `https://api.github.com/gists/${gistId}`
 
-  const res = await fetch(apiUrl, {
+  const res = await fetchWithRetry(apiUrl, {
     headers: { Accept: 'application/vnd.github+json' },
+    retryPolicy: READ_RETRY_POLICY,
   })
 
   if (res.status === 404) throw new Error('Gist not found. Make sure it is public.')
@@ -53,7 +56,9 @@ export async function fetchGistFiles(url: string): Promise<GistData> {
  * Fetch the raw content of a single gist file.
  */
 export async function fetchGistFileContent(rawUrl: string): Promise<string> {
-  const res = await fetch(rawUrl)
+  const res = await fetchWithRetry(rawUrl, {
+    retryPolicy: READ_RETRY_POLICY,
+  })
   if (!res.ok) throw new Error(`Failed to fetch gist file: ${res.status}`)
   return res.text()
 }

@@ -1,4 +1,5 @@
 import type { Finding } from '@/types/findings'
+import { fetchWithRetry, NOTIFICATION_RETRY_POLICY } from './httpClient'
 
 const NOTION_API = 'https://api.notion.com/v1'
 
@@ -78,7 +79,7 @@ export async function createNotionPage(
     children,
   }
 
-  const res = await fetch(`${NOTION_API}/pages`, {
+  const res = await fetchWithRetry(`${NOTION_API}/pages`, {
     method: 'POST',
     headers: {
       Authorization: `Bearer ${token}`,
@@ -86,6 +87,7 @@ export async function createNotionPage(
       'Notion-Version': '2022-06-28',
     },
     body: JSON.stringify(body),
+    retryPolicy: NOTIFICATION_RETRY_POLICY,
   })
 
   if (!res.ok) {

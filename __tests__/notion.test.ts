@@ -106,7 +106,7 @@ describe('createNotionPage', () => {
   })
 
   it('throws generic error when no message in response', async () => {
-    ;(global.fetch as jest.Mock).mockResolvedValueOnce({
+    ;(global.fetch as jest.Mock).mockResolvedValue({
       ok: false,
       status: 500,
       json: async () => ({}),
